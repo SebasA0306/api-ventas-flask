@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify,request
 from services.procesador import obtener_datos
 import pandas as pd
 
@@ -14,6 +14,25 @@ def ventas_producto(producto):
         return jsonify({"error":"Producto no encontrado"}),404
     
     return jsonify(resultado.to_dict(orient="records"))
+
+@app.route("/ventas", methods=["POST"])
+def agregar_venta():
+    data = request.get_json()
+    
+    producto = data.get("producto")
+    cantidad = data.get("cantidad")
+    precio = data.get("precio")
+    
+    import sqlite3
+    conn = sqlite3.connect("data/ventas.db")
+    cursor=conn.cursor()
+    
+    cursor.execute("INSERT INTO ventas (producto, cantidad, precio) VALUES (?, ?, ?)", (producto, cantidad, precio))
+    
+    conn.commit()
+    conn.close() 
+    
+    return jsonify({"mensaje": "Venta agregada correctamente"})
 
 @app.errorhandler(404)
 def not_found(error):

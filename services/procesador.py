@@ -1,7 +1,11 @@
 import pandas as pd
+import sqlite3
 
 def obtener_datos():
-    df = pd.read_csv("data/ventas.csv")  #convierte el archivo en un Data Frame, tabla en python
+    conn = sqlite3.connect("data/ventas.db")
+    df=pd.read_sql("SELECT * FROM ventas", conn)
+    conn.close()
+    
     df = df.dropna()
     df["total"] = df["cantidad"]*df["precio"]  #se crea una nueva columna con el cálculo total
     
